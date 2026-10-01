@@ -1,0 +1,35 @@
+export default function Build() {
+  return (
+    <article class="build-notes page-enter">
+      <p class="eyebrow">Agent reference</p>
+      <h1>How Bloom is built.</h1>
+      <section>
+        <h2>Signals</h2>
+        <p><code>src/state/garden.js</code> keeps plot assignments, watering journal entries, season filter, and save status in module-scoped signals.</p>
+      </section>
+      <section>
+        <h2>Computed values</h2>
+        <p><code>filteredPlants</code>, <code>careQueue</code>, and <code>gardenSummary</code> derive catalog, care, and header UI without duplicating state.</p>
+      </section>
+      <section>
+        <h2>Effects and persistence</h2>
+        <p>A single <code>effect</code> writes garden snapshots into localStorage and updates the saved status. Malformed or denied storage falls back to safe in-memory session edits.</p>
+      </section>
+      <section>
+        <h2>Routing</h2>
+        <p><code>src/routes.js</code> defines explicit What router routes including <code>/plants/:slug</code> and a catch-all 404 route. The build script emits concrete aliases for every bundled plant plus <code>404.html</code>.</p>
+      </section>
+      <section>
+        <h2>Build journal</h2>
+        <p>The inline SVG plant marks keep the starter asset-free. Static hosting also needed generated detail aliases instead of only index shells.</p>
+      </section>
+      <section>
+        <h2>Problem → fix → proof</h2>
+        <p><strong>Static plant URLs:</strong> <code>scripts/static-aliases.mjs</code> reads <code>src/data/plants.js</code> and emits each <code>/plants/:slug</code> path. Browser tests open every plant directly.</p>
+        <p><strong>Storage resilience:</strong> <code>validPlan()</code> guards known plot keys, known plants, and unique placements; journal entries and season filters are validated before restore. Browser tests seed malformed storage and verify seed fallback.</p>
+        <p><strong>Visual direction:</strong> <code>src/pages/Home.jsx</code> uses seed packets, a care calendar, and a plot map so Bloom is recognizably botanical rather than another pastel card dashboard.</p>
+        <p><strong>State bucket lesson:</strong> a plant belongs to one plot bucket at a time. <code>assignPlant()</code> removes the slug from every plot before appending it to the selected destination, and tests assert Sun Gold Tomato appears exactly once.</p>
+      </section>
+    </article>
+  );
+}
