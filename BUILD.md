@@ -18,6 +18,14 @@ plant fixtures -> plot/journal/filter signals -> computed care queue -> catalog,
 
 The state module validates stored JSON. Corrupt schemas load seed plot data rather than crashing. Storage-denied browsers keep session edits and show a visible warning.
 
+## Vura static deployment notes
+
+Bloom is a pure Vite/What client app. Static plant URLs are emitted as concrete HTML files, with a real `404.html`, and Vura is left to synthesize its static manifest.
+
+The Vura schema lesson from live upload testing is baked into `vura.json`: no unsupported top-level `rewrites`, and catch-all header sources use `(.*)` rather than `*`. The rules are enforced by `vura-platform/packages/shared/src/config/vura-config.ts` and `routing-rules.ts`.
+
+The starter also avoids an unused Vura server runtime dependency. A local Vura CLI archive check now packs Bloom at about 21.7 KiB while preserving every concrete plant route.
+
 ## Actual issues handled
 
 - The plant illustrations are inline SVG so the starter remains deterministic and asset-free.
@@ -34,6 +42,7 @@ The state module validates stored JSON. Corrupt schemas load seed plot data rath
 - Problem: Bloom needed a botanical-specific composition. Fix: homepage now uses seed packets, care-calendar rows, and a plot map instead of the generic hero/card formula. Proof: screenshot tests capture the new “Seed packets” first viewport.
 - Problem: a plant could appear in both its old and new plot after reassignment. Fix: `assignPlant()` rebuilds the known plot buckets, removes the plant everywhere, then appends it to the chosen plot. Proof: unit and browser tests assert Sun Gold Tomato appears exactly once after moving to kitchen bed.
 - Problem: a malformed stored plan or journal could include unknown plot keys, duplicate plant placements, null journal entries, or an unknown season filter. Fix: the storage loader now validates known plot keys, known plants, unique assignments, journal entry shape, and known seasons before restoring. Proof: a browser regression seeds invalid storage and verifies Bloom falls back to seed state.
+- Problem: a static starter should not upload like a server app. Fix: remove the manual manifest path, keep valid Vura schema fields, and let static synthesis read the generated files. Proof: `parseVuraJson()` accepts the config, no `dist/manifest.json` remains after build, and the Vura CLI archive is about 21.7 KiB.
 
 ## Verification
 

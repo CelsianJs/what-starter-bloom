@@ -20,6 +20,10 @@ export default function Build() {
         <p><code>src/routes.js</code> defines explicit What router routes including <code>/plants/:slug</code> and a catch-all 404 route. The build script emits concrete aliases for every bundled plant plus <code>404.html</code>.</p>
       </section>
       <section>
+        <h2>Vura static packaging</h2>
+        <p>Bloom emits concrete plant HTML files and <code>404.html</code>, then lets Vura synthesize static routing. The deploy config uses supported top-level fields only, writes catch-alls as <code>(.*)</code>, and avoids unused Vura server-runtime code.</p>
+      </section>
+      <section>
         <h2>Build journal</h2>
         <p>The inline SVG plant marks keep the starter asset-free. Static hosting also needed generated detail aliases instead of only index shells.</p>
       </section>
@@ -29,6 +33,7 @@ export default function Build() {
         <p><strong>Storage resilience:</strong> <code>validPlan()</code> guards known plot keys, known plants, and unique placements; journal entries and season filters are validated before restore. Browser tests seed malformed storage and verify seed fallback.</p>
         <p><strong>Visual direction:</strong> <code>src/pages/Home.jsx</code> uses seed packets, a care calendar, and a plot map so Bloom is recognizably botanical rather than another pastel card dashboard.</p>
         <p><strong>State bucket lesson:</strong> a plant belongs to one plot bucket at a time. <code>assignPlant()</code> removes the slug from every plot before appending it to the selected destination, and tests assert Sun Gold Tomato appears exactly once.</p>
+        <p><strong>Upload size:</strong> the Vura CLI pack check is about 21.7 KiB with static synthesis and no manual manifest.</p>
       </section>
     </article>
   );
