@@ -20,7 +20,7 @@ export default function Home() {
       <div class="garden-brief">
         <p class="eyebrow">Garden planner</p>
         <h1>Seed packets, beds, and care queue.</h1>
-        <p>Bloom combines static plant content, routeable details, plot assignment, a watering journal, and computed care timing without weather, sensors, or remote services.</p>
+        <p>Bloom is a synthetic garden notebook: browse plant cards, assign beds, track watering notes, and see the next local care window without weather, sensors, or remote services.</p>
         <div class="hero-actions">
           <Link class="button primary" href="/catalog">Open seed catalog</Link>
           <Link class="button" href="/journal">Watering journal</Link>
