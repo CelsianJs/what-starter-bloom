@@ -1,18 +1,7 @@
 import { Link } from 'what-framework/router';
+import { PlantMark } from '../components/PlantArt.jsx';
 import { plots } from '../data/plants.js';
 import { assignPlant, careQueue, filteredPlants, logWatering, resetGarden, seasonFilter } from '../state/garden.js';
-
-function PlantMark({ plant }) {
-  return (
-    <svg class="plant-mark" viewBox="0 0 80 80" role="img" aria-label={`${plant.name} illustration`}>
-      <circle cx="40" cy="66" r="8" fill="#7b5b36" />
-      <path d="M40 64 C38 44 40 28 42 14" stroke={plant.color} stroke-width="5" fill="none" stroke-linecap="round" />
-      <ellipse cx="29" cy="38" rx="18" ry="9" fill={plant.color} opacity=".78" transform="rotate(-28 29 38)" />
-      <ellipse cx="52" cy="30" rx="19" ry="9" fill={plant.color} opacity=".72" transform="rotate(28 52 30)" />
-      <ellipse cx="40" cy="20" rx="12" ry="7" fill="#f0b84a" opacity=".78" />
-    </svg>
-  );
-}
 
 export default function Catalog() {
   return (

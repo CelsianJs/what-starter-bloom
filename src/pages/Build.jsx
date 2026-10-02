@@ -32,6 +32,8 @@ export default function Build() {
         <p><strong>Static plant URLs:</strong> <code>scripts/static-aliases.mjs</code> reads <code>src/data/plants.js</code> and emits each <code>/plants/:slug</code> path. Browser tests open every plant directly.</p>
         <p><strong>Storage resilience:</strong> <code>validPlan()</code> guards known plot keys, known plants, and unique placements; journal entries and season filters are validated before restore. Browser tests seed malformed storage and verify seed fallback.</p>
         <p><strong>Visual direction:</strong> <code>src/pages/Home.jsx</code> uses seed packets, a care calendar, and a plot map so Bloom is recognizably botanical rather than another pastel card dashboard.</p>
+        <p><strong>Plot map iteration:</strong> the first map only showed counts. It now renders bed shapes and plant-colored dots from <code>plotPlan()</code>, making the unique-assignment state visible in the hero.</p>
+        <p><strong>Shared SVG identity:</strong> <code>src/components/PlantArt.jsx</code> shares the packet and plant marks across home, catalog, and detail routes so detail pages keep the seed-packet identity without external assets.</p>
         <p><strong>State bucket lesson:</strong> a plant belongs to one plot bucket at a time. <code>assignPlant()</code> removes the slug from every plot before appending it to the selected destination, and tests assert Sun Gold Tomato appears exactly once.</p>
         <p><strong>Upload size:</strong> the Vura CLI pack check is about 21.7 KiB with static synthesis and no manual manifest.</p>
       </section>

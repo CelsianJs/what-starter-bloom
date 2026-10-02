@@ -21,6 +21,8 @@ test.afterEach(async ({ page }) => {
 test('filters catalog, assigns a plot, logs watering, and screenshots', async ({ page }, testInfo) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /seed packets/i })).toBeVisible();
+  await expect(page.getByText('1 journal entry')).toBeVisible();
+  await expect(page.locator('.plot-dots i')).toHaveCount(5);
 
   await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Catalog', exact: true }).click();
   await page.getByLabel('Season filter').selectOption('warm');
@@ -45,6 +47,7 @@ test('every plant detail route is directly addressable', async ({ page }) => {
   for (const plant of plants) {
     await page.goto(`/plants/${plant.slug}`);
     await expect(page.getByRole('heading', { name: plant.name })).toBeVisible();
+    await expect(page.getByRole('img', { name: `${plant.name} seed packet illustration` })).toBeVisible();
   }
 });
 

@@ -24,7 +24,7 @@
 ## Visual language
 - Color: botanical mint, ochre accents, moss controls, warm paper panels
 - Layout: Bloom should not share the same hero-card formula as Gather, Tally, or Drift; it opens with a seed-packet / plot-map composition and a care calendar rail
-- Imagery: original inline SVG plant marks generated from local plant data, plot-row illustrations, seed-packet labels, and calendar tags; no stock plant photos or external assets
+- Imagery: original inline SVG plant marks generated from local plant data, plot-bed shapes with packet-colored assignment dots, seed-packet labels reused on detail pages, and calendar tags; no stock plant photos or external assets
 - Shape/rhythm: stamped seed packets, ruled garden rows, clipped care notes, and tighter botanical catalog rhythm
 - Motion: short page entrance with reduced-motion fallback
 
@@ -33,6 +33,7 @@
 
 ## Interaction states
 - Empty and filtered states stay readable.
+- Plot map visuals must be driven by the unique assignment state, not decorative counts.
 - Malformed storage resets to seed garden.
 - Storage denied displays session-only copy while keeping edits working.
 - Care queue is computed from plant data and local journal state.
