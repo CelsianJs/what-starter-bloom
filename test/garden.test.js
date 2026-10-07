@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { plantBySlug, plants } from '../src/data/plants.js';
-import { assignPlant, plotPlan, resetGarden } from '../src/state/garden.js';
+import { assignPlant, careQueue, logWatering, plotPlan, resetGarden } from '../src/state/garden.js';
 
 describe('plant catalog', () => {
+  it('does not keep a freshly watered tomato due today', () => {
+    resetGarden();
+    logWatering('sun-gold-tomato');
+    expect(careQueue().find(plant => plant.slug === 'sun-gold-tomato').urgency).not.toBe('today');
+  });
   it('finds routeable plants by slug', () => {
     expect(plantBySlug('sun-gold-tomato')?.name).toBe('Sun Gold Tomato');
   });

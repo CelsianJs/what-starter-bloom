@@ -1,7 +1,7 @@
 import { Link } from 'what-framework/router';
 import { PlantMark } from '../components/PlantArt.jsx';
 import { plots } from '../data/plants.js';
-import { assignPlant, careQueue, filteredPlants, logWatering, resetGarden, seasonFilter } from '../state/garden.js';
+import { assignedPlot, assignPlant, careQueue, filteredPlants, logWatering, resetGarden, seasonFilter } from '../state/garden.js';
 
 export default function Catalog() {
   return (
@@ -31,7 +31,7 @@ export default function Catalog() {
             <p>{plant.notes}</p>
             <div class="action-row">
               <button class="button" onClick={() => logWatering(plant.slug)}>Log watering</button>
-              <select aria-label={`Assign ${plant.name} to plot`} onChange={(event) => assignPlant(event.target.value, plant.slug)}>
+              <select aria-label={`Assign ${plant.name} to plot`} value={() => assignedPlot(plant.slug)} onChange={(event) => assignPlant(event.target.value, plant.slug)}>
                 <option value="">Assign plot</option>
                 {plots.map((plot) => <option value={plot}>{plot}</option>)}
               </select>

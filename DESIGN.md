@@ -2,7 +2,7 @@
 
 ## Source of truth
 - Status: Active
-- Last refreshed: 2026-10-01
+- Last refreshed: 2026-10-07
 - Primary product surfaces: overview, seed catalog, plant detail, plot plan, watering journal, build notes
 - Evidence reviewed: What Framework routing/state examples, current getting-started guidance, and the Vura deploy script pattern used by these starters
 
@@ -37,6 +37,9 @@
 - Malformed storage resets to seed garden.
 - Storage denied displays session-only copy while keeping edits working.
 - Care queue is computed from plant data and local journal state.
+- Care windows use valid dated manual watering and local calendar days. Observation-only notes never change the watering date; undated legacy notes retain their text without invented timestamps. Unknown history means a manual soil check, not a fake overdue claim.
+- Plant detail binds current unique bed placement, shows last watering/next check when known, and provides an inline observation composer with reactive recent history.
+- Packet and catalog illustrations distinguish herbs, fruit, roots, flowers and vines using local SVG silhouettes; no plant photos or external asset requests.
 
 ## Implementation constraints
 - What Framework 0.13.10, what-compiler 0.13.10, Vite 6.4.3, Vitest 4.1.11, Vura CLI 0.3.0.

@@ -1,5 +1,6 @@
 import { Link } from 'what-framework/router';
-import { gardenSummary, saveStatus } from '../state/garden.js';
+import { gardenSummary, refreshClock, saveStatus } from '../state/garden.js';
+import { useEffect } from 'what-framework';
 
 const nav = [
   ['/', 'Home'],
@@ -10,6 +11,11 @@ const nav = [
 ];
 
 export default function AppShell({ children }) {
+  useEffect(() => {
+    const timer = setInterval(refreshClock, 60000);
+    window.addEventListener('focus', refreshClock);
+    return () => { clearInterval(timer); window.removeEventListener('focus', refreshClock); };
+  }, []);
   return (
     <div class="site-shell">
       <a class="skip-link" href="#content">Skip to content</a>

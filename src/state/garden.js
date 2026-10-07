@@ -1,5 +1,6 @@
 import { computed, effect, signal } from 'what-framework';
 import { plantBySlug, plants, plots } from '../data/plants.js';
+import { careForPlant, migrateJournal } from '../utils/care.js';
 
 export const STORAGE_KEY = 'what-starter-bloom-v1';
 
@@ -14,7 +15,7 @@ function seedPlan() {
 }
 
 function initialJournal() {
-  return [{ id: 'water-seed', plant: 'opal-basil', note: 'Seeded journal with a light morning soak.', day: 'Today' }];
+  return [{ id: 'water-seed', plant: 'opal-basil', note: 'Seeded journal with a light morning soak.', kind: 'watering', observedAt: null }];
 }
 
 const knownSeasons = ['all', ...new Set(plants.map((plant) => plant.season))];
@@ -44,7 +45,9 @@ function validJournal(journal) {
       && typeof entry.id === 'string'
       && plantBySlug(entry.plant)
       && typeof entry.note === 'string'
-      && typeof entry.day === 'string');
+      && entry.note.length <= 500
+      && (typeof entry.day === 'string' || entry.observedAt === null || (typeof entry.observedAt === 'string' && Number.isFinite(Date.parse(entry.observedAt))))
+      && (entry.kind === undefined || ['watering', 'observation'].includes(entry.kind)));
 }
 
 function validFilter(filter) {
@@ -60,7 +63,7 @@ function safeLoad() {
     }
     return {
       plan: parsed.plan,
-      journal: parsed.journal,
+      journal: migrateJournal(parsed.journal),
       filter: parsed.filter || 'all',
       status: 'Garden restored from this browser.',
     };
@@ -75,21 +78,24 @@ export const plotPlan = signal(initial.plan, 'bloom.plotPlan');
 export const wateringJournal = signal(initial.journal, 'bloom.wateringJournal');
 export const seasonFilter = signal(initial.filter, 'bloom.seasonFilter');
 export const saveStatus = signal(initial.status, 'bloom.saveStatus');
+export const clock = signal(Date.now());
+export const refreshClock = () => clock(Date.now());
+export const assignedPlot = slug => plots.find(plot => plotPlan()[plot].includes(slug)) || '';
+export const plantCare = slug => careForPlant(plantBySlug(slug), wateringJournal(), new Date(clock()));
 
 export const filteredPlants = computed(() => plants.filter((plant) => seasonFilter() === 'all' || plant.season === seasonFilter()));
 
 export const careQueue = computed(() => filteredPlants()
   .map((plant) => ({
     ...plant,
-    urgency: plant.waterEvery <= 1 ? 'today' : plant.waterEvery <= 2 ? 'soon' : 'watch',
-    lastWatered: wateringJournal().find((entry) => entry.plant === plant.slug)?.day || 'not logged',
+    ...careForPlant(plant, wateringJournal(), new Date(clock())),
   }))
-  .sort((a, b) => a.waterEvery - b.waterEvery));
+  .sort((a, b) => ({ overdue: 0, today: 1, check: 2, soon: 3, rest: 4 }[a.urgency] - { overdue: 0, today: 1, check: 2, soon: 3, rest: 4 }[b.urgency])));
 
 export const gardenSummary = computed(() => ({
   plants: plants.length,
   plots: Object.keys(plotPlan()).length,
-  dueToday: careQueue().filter((plant) => plant.urgency === 'today').length,
+  dueToday: careQueue().filter((plant) => ['today', 'overdue'].includes(plant.urgency)).length,
   entries: wateringJournal().length,
 }));
 
@@ -106,9 +112,21 @@ export function assignPlant(plot, slug) {
 }
 
 export function logWatering(slug, note = 'Watered deeply.') {
+  addEntry(slug, note, 'watering');
+}
+
+export function logObservation(slug, note) {
+  if (!note.trim()) return false;
+  return addEntry(slug, note, 'observation');
+}
+
+let entrySequence = 0;
+function addEntry(slug, note, kind) {
   const plant = plantBySlug(slug);
-  if (!plant) return;
-  wateringJournal((entries) => [{ id: `water-${Date.now().toString(36)}`, plant: slug, note, day: 'Today' }, ...entries].slice(0, 30));
+  if (!plant) return false;
+  refreshClock();
+  wateringJournal((entries) => [{ id: `note-${Date.now().toString(36)}-${++entrySequence}`, plant: slug, note: note.trim().slice(0, 500), kind, observedAt: new Date(clock()).toISOString() }, ...entries].slice(0, 30));
+  return true;
 }
 
 export function resetGarden() {
@@ -121,7 +139,7 @@ export function resetGarden() {
 function persistSnapshot(snapshot) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    saveStatus(`Saved ${snapshot.journal.length} watering entr${snapshot.journal.length === 1 ? 'y' : 'ies'} locally.`);
+    saveStatus(`Saved ${snapshot.journal.length} notebook entr${snapshot.journal.length === 1 ? 'y' : 'ies'} locally.`);
   } catch {
     saveStatus('Changes are not saved in this browser. Garden edits will last for this session only.');
   }

@@ -74,6 +74,8 @@ button { cursor: pointer; }
 .ribbon span:not(:last-child)::after { content: "·"; margin-left: .75rem; }
 .content { padding: clamp(1rem, 4vw, 3rem) 0; }
 .footer { border-top: 1px solid var(--line); color: var(--muted); padding: 2rem 0; }
+.build-notes, .build-notes section { min-width: 0; overflow-wrap: anywhere; }
+.build-notes pre { min-width: 0; max-width: 100%; overflow-x: auto; white-space: pre; padding: 1rem; border: 1px solid var(--line); background: var(--paper); font-size: .82rem; line-height: 1.5; }
 .eyebrow, .row-kicker {
   color: #8b6a18;
   font-size: .78rem;
@@ -139,6 +141,21 @@ p { line-height: 1.58; }
   align-self: center;
 }
 .garden-brief p { color: var(--muted); }
+.garden-brief h1 { font-size: clamp(2.35rem, 4vw, 3.8rem); line-height: 1.03; }
+.plant-care { display: grid; grid-template-columns: 1fr 2fr; gap: 1rem; padding: 1rem 0; border-block: 1px solid var(--line); margin: 1rem 0; }
+.plant-care strong { font-family: Georgia, serif; font-size: 1.6rem; }
+.plant-care p { margin: 0; color: var(--muted); }
+.observation-form { margin-top: 1.5rem; display: grid; gap: .7rem; }
+.observation-form label { display: grid; gap: .5rem; font-weight: 700; }
+.observation-form textarea { width: 100%; resize: vertical; font: inherit; padding: .8rem; border: 1px solid var(--line); border-radius: .5rem; background: var(--paper); }
+.observation-form button { justify-self: start; }
+.action-feedback { color: var(--moss); min-height: 1.6em; }
+.plant-history { border-top: 1px solid var(--line); padding-top: 1.5rem; }
+.plant-history article { border-bottom: 1px solid var(--line); padding: .8rem 0; }
+.plant-history span { color: var(--muted); font-size: .8rem; }
+.plant-history p { margin-bottom: 0; }
+textarea:focus-visible, select:focus-visible { outline: 3px solid var(--ochre); outline-offset: 3px; }
+@media (max-width: 600px) { .plant-care { grid-template-columns: 1fr; } }
 .garden-stats {
   display: flex;
   flex-wrap: wrap;
