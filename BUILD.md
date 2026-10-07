@@ -47,7 +47,31 @@ The starter also avoids an unused Vura server runtime dependency. A local Vura C
 - Problem: a malformed stored plan or journal could include unknown plot keys, duplicate plant placements, null journal entries, or an unknown season filter. Fix: the storage loader now validates known plot keys, known plants, unique assignments, journal entry shape, and known seasons before restoring. Proof: a browser regression seeds invalid storage and verifies Bloom falls back to seed state.
 - Problem: a static starter should not upload like a server app. Fix: remove the manual manifest path, keep valid Vura schema fields, and let static synthesis read the generated files. Proof: `parseVuraJson()` accepts the config, no `dist/manifest.json` remains after build, and the Vura CLI archive is about 21.7 KiB.
 
-## Verification
+## A dated manual notebook
+
+`src/utils/care.js` separates date calculations from signals. `careForPlant(plant, entries, now)` accepts an explicit clock for deterministic tests. It considers only valid, non-future dated watering entries; observations never postpone watering. The next check uses local calendar days, not a fixed 24-hour alarm, and is a suggestion to inspect soil rather than a moisture measurement.
+
+```js
+const nextCare = midnight(latest.observedAt);
+nextCare.setDate(nextCare.getDate() + plant.waterEvery);
+```
+
+No dated watering means “Check soil,” not a fabricated overdue date. The original seeded note and older `day: 'Today'` entries migrate to `observedAt: null`; their text survives and the UI labels them “Undated legacy note.” Known timestamps are retained. Storage validation still rejects malformed plants, plot buckets and journal shapes.
+
+```js
+export const assignedPlot = slug =>
+  plots.find(plot => plotPlan()[plot].includes(slug)) || '';
+```
+
+The detail and catalog selects read that accessor instead of displaying a blank assignment. A detail observation form saves a separate `kind: 'observation'` entry, while Log watering records an ISO timestamp. Recent plant history reads the journal reactively. The latest 30 entries remain local. `AppShell` refreshes the clock once a minute and on window focus, then removes its timer/listener on unmount.
+
+Problem: watering never changed the TODAY badge because urgency used only cadence. Fix: derive care from dated watering and the explicit current clock. Tests cover today, next day, overdue, invalid/future dates and legacy unknown dates. Problem: a persisted bed move displayed “Choose plot.” Fix: bind the current unique assignment; browser tests verify the same select after changing it.
+
+The botanical artwork is still deterministic inline SVG, now with separate herb, fruit, root, flower and vine silhouettes. The shorter notebook brief makes the real plot map visible sooner. What stayed smooth: existing unique assignment, storage-denied session fallback and static plant aliases fit the richer notebook without new services or dependencies.
+
+## Verification commands
+
+The new source examples revealed a separate mobile-guide overflow. Guide sections can now shrink with `min-width: 0`, inline tokens wrap, and literal preformatted snippets scroll within their own maximum width. A browser regression checks the390px document with both its normal code font and a wider Courier fallback, while asserting that the copied source text remains intact. Product notebook styles are unchanged by this guide-only repair.
 
 Expected gates:
 

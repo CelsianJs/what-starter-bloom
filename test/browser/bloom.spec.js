@@ -18,6 +18,29 @@ test.afterEach(async ({ page }) => {
   expect(page.consoleErrors).toEqual([]);
 });
 
+test('build guide contains literal code at390px with a wide fallback font', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/build');
+  const widths = [await page.evaluate(() => ({ font: 'default', viewport: innerWidth, document: document.documentElement.scrollWidth }))];
+  await page.addStyleTag({ content: '.build-notes pre code { font-family: "Courier New", monospace; font-size: 18px; letter-spacing: .8px; }' });
+  widths.push(await page.evaluate(() => ({ font: 'wide fallback', viewport: innerWidth, document: document.documentElement.scrollWidth })));
+  expect(widths.every(width => width.document <= width.viewport), JSON.stringify(widths)).toBe(true);
+  await expect(page.locator('.build-notes pre code').first()).toContainText('nextCare.setDate(nextCare.getDate() + plant.waterEvery);');
+});
+
+test('detail reflects current plot and records a dated observation without watering', async ({ page }) => {
+  await page.goto('/plants/sun-gold-tomato');
+  await expect(page.getByLabel('Assign plot')).toHaveValue('south trellis');
+  await page.getByLabel('Assign plot').selectOption('kitchen bed');
+  await expect(page.getByLabel('Assign plot')).toHaveValue('kitchen bed');
+  await page.getByLabel('Observation').fill('New flower truss on the north stem.');
+  await page.getByRole('button', { name: 'Save observation' }).click();
+  await expect(page.locator('.plant-history')).toContainText('New flower truss');
+  await expect(page.locator('.plant-care')).toContainText('Check soil');
+  await page.getByRole('button', { name: 'Log watering', exact: true }).click();
+  await expect(page.locator('.plant-care')).toContainText('Rest');
+});
+
 test('filters catalog, assigns a plot, logs watering, and screenshots', async ({ page }, testInfo) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: /seed packets/i })).toBeVisible();
@@ -49,6 +72,24 @@ test('every plant detail route is directly addressable', async ({ page }) => {
     await expect(page.getByRole('heading', { name: plant.name })).toBeVisible();
     await expect(page.getByRole('img', { name: `${plant.name} seed packet illustration` })).toBeVisible();
   }
+});
+
+test('legacy Today text remains undated while dated watering advances care', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-07T12:00:00Z'));
+  await page.addInitScript(key => {
+    localStorage.setItem(key, JSON.stringify({
+      plan: { 'kitchen bed': ['opal-basil'], 'south trellis': ['sun-gold-tomato'], 'root box': ['moon-carrot'], 'pollinator edge': ['blue-borage'], 'east arch': ['jade-cucumber'] },
+      journal: [{ id: 'legacy', plant: 'sun-gold-tomato', note: 'A remembered soak.', day: 'Today' }], filter: 'all',
+    }));
+  }, STORAGE_KEY);
+  await page.goto('/plants/sun-gold-tomato');
+  await expect(page.locator('.plant-history')).toContainText('Undated legacy note');
+  await expect(page.locator('.plant-care')).toContainText('Check soil');
+  await page.getByRole('button', { name: 'Log watering', exact: true }).click();
+  await expect(page.locator('.plant-care')).toContainText('Rest');
+  await page.clock.setFixedTime(new Date('2026-10-09T12:00:00Z'));
+  await page.evaluate(() => window.dispatchEvent(new Event('focus')));
+  await expect(page.locator('.plant-care')).toContainText('Overdue');
 });
 
 test('storage-denied browsers keep session edits without crashing', async ({ page }) => {

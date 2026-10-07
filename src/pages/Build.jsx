@@ -4,6 +4,20 @@ export default function Build() {
       <p class="eyebrow">Agent reference</p>
       <h1>How Bloom is built.</h1>
       <section>
+        <h2>Dates without invented history</h2>
+        <p><code>careForPlant(plant, entries, now)</code> separates date math from signal state and accepts a test clock. Only valid, non-future dated watering changes the next local-calendar care window. Observation notes leave watering unchanged; unknown history says Check soil.</p>
+        <pre><code>{`const nextCare = midnight(latest.observedAt);
+nextCare.setDate(nextCare.getDate() + plant.waterEvery);`}</code></pre>
+        <p>Old Today labels had no actual date. Migration keeps the notes with <code>observedAt: null</code> and labels them undated instead of inventing timestamps. Tests lock that distinction and the today/next-day/overdue boundaries.</p>
+      </section>
+      <section>
+        <h2>Current placement and observations</h2>
+        <p>The original detail select did not display a saved assignment. Catalog and detail now bind to the unique plot bucket through the same accessor:</p>
+        <pre><code>{`export const assignedPlot = slug =>
+  plots.find(plot => plotPlan()[plot].includes(slug)) || '';`}</code></pre>
+        <p>An inline composer appends dated observation notes; plant history reacts to the shared journal. AppShell owns the minute/focus clock refresh and its cleanup. Existing static aliases, local-storage fallback and unique assignments continued to work without another service.</p>
+      </section>
+      <section>
         <h2>Signals</h2>
         <p><code>src/state/garden.js</code> keeps plot assignments, watering journal entries, season filter, and save status in module-scoped signals.</p>
       </section>
