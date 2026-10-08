@@ -71,7 +71,10 @@ test('every plant detail route is directly addressable', async ({ page }) => {
     await page.goto(`/plants/${plant.slug}`);
     await expect(page.getByRole('heading', { name: plant.name })).toBeVisible();
     await expect(page.getByRole('img', { name: `${plant.name} seed packet illustration` })).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Catalog', exact: true })).toHaveAttribute('aria-current', 'location');
   }
+  await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Catalog', exact: true })).not.toHaveAttribute('aria-current');
 });
 
 test('legacy Today text remains undated while dated watering advances care', async ({ page }) => {
@@ -132,4 +135,36 @@ test('unknown route renders fallback and keyboard focus works', async ({ page })
   await page.goto('/catalog');
   await page.keyboard.press('Tab');
   await expect(page.locator(':focus')).toBeVisible();
+});
+
+
+test('modern typography and touch geometry remain consistent across routes', async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    for (const route of ["/","/catalog","/plants/opal-basil","/plots","/journal","/build"]) {
+      await page.goto(route);
+      await expect(page.locator('h1')).toBeVisible();
+      const metrics = await page.evaluate(() => {
+        const heading = getComputedStyle(document.querySelector('h1'));
+        const body = getComputedStyle(document.body);
+        const targets = [...document.querySelectorAll('nav a, button, .button, a.brand')].filter(node => node.getClientRects().length);
+        const navRows = new Map();
+        for (const link of document.querySelectorAll('nav a')) {
+          const top = Math.round(link.getBoundingClientRect().top);
+          navRows.set(top, (navRows.get(top) || 0) + 1);
+        }
+        return { navRows: [...navRows.values()], heading: parseFloat(heading.fontSize), family: body.fontFamily, body: body.fontSize, overflow: document.documentElement.scrollWidth > innerWidth, smallTargets: targets.filter(node => node.getBoundingClientRect().height < 43.9).map(node => node.textContent) };
+      });
+      expect(metrics.family).toContain('Avenir Next');
+      expect(metrics.body).toBe('16px');
+      expect(metrics.heading).toBeGreaterThanOrEqual(28);
+      expect(metrics.heading).toBeLessThanOrEqual(36);
+      expect(metrics.overflow).toBe(false);
+      expect(metrics.smallTargets).toEqual([]);
+      if (viewport.width === 390) expect(metrics.navRows).toEqual([3, 2]);
+      const firstNav = page.locator('nav a').first();
+      await firstNav.focus();
+      await expect(firstNav).toHaveCSS('outline-style', 'solid');
+    }
+  }
 });

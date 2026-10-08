@@ -1,4 +1,4 @@
-import { Link } from 'what-framework/router';
+import { Link, route } from 'what-framework/router';
 import { gardenSummary, refreshClock, saveStatus } from '../state/garden.js';
 import { useEffect } from 'what-framework';
 
@@ -26,7 +26,12 @@ export default function AppShell({ children }) {
         </div>
         <nav class="nav" aria-label="Primary">
           {nav.map(([href, label]) => (
-            <Link href={href} activeClass="active" exactActiveClass="active">{label}</Link>
+            <Link
+              href={href}
+              activeClass="active"
+              exactActiveClass="active"
+              aria-current={() => route.path === href ? 'page' : href === '/catalog' && route.path.startsWith('/plants/') ? 'location' : undefined}
+            >{label}</Link>
           ))}
         </nav>
       </header>
